@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Moja mapa</title>
+  <title>Mapa kompozytorów</title>
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
@@ -15,11 +15,38 @@
 <div id="map"></div>
 <script>
   mapboxgl.accessToken = 'pk.eyJ1Ijoib2xnYXZvbmwiLCJhIjoiY21lZzBtMDc4MHU4ZzJsc2dpcjE0YW55ZSJ9.oNDJMWUtp2kbLVQahXqU9A';
+
   const map = new mapboxgl.Map({
     container: 'map',
     style: 'mapbox://styles/olgavonl/cmehmpdy700ab01s6blt5dxis',
     center: [20.310833, 52.258333],
-    zoom: 10
+    zoom: 4
+  });
+
+  // dodajemy popup przy kliknięciu w punkt z warstwy "a-kompozytorzy"
+  map.on('click', 'a-kompozytorzy', (e) => {
+    const coordinates = e.features[0].geometry.coordinates.slice();
+    const props = e.features[0].properties;
+
+    const description = `
+      <h3>${props.composerLabel || 'Nieznany'}</h3>
+      <p><strong>Composer:</strong> ${props.composer || ''}</p>
+      <p><strong>Miejsce:</strong> ${props.placeLabel || ''}</p>
+      <p><a href="https://musicalics.com/en/node/${props.musicalicsID}" target="_blank">Profil w Musicalics</a></p>
+    `;
+
+    new mapboxgl.Popup()
+      .setLngLat(coordinates)
+      .setHTML(description)
+      .addTo(map);
+  });
+
+  // zmiana kursora na "rączkę" nad punktami
+  map.on('mouseenter', 'a-kompozytorzy', () => {
+    map.getCanvas().style.cursor = 'pointer';
+  });
+  map.on('mouseleave', 'a-kompozytorzy', () => {
+    map.getCanvas().style.cursor = '';
   });
 </script>
 </body>
